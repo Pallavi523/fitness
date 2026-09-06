@@ -1,6 +1,6 @@
 package com.project.fitness.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,10 +24,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
+    @Column(unique = true)
     private String email;
     private String password;
     private String firstName;
     private String lastName;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
