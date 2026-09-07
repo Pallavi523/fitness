@@ -1,5 +1,6 @@
 package com.project.fitness.security;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -34,7 +35,7 @@ public class JwtUtils {
 
         return Jwts.builder()
                 .subject(userId)
-                .claim("roles", List.of(new SimpleGrantedAuthority(role)))
+                .claim("roles", List.of(role))
                 .issuedAt(new Date())
                 .expiration(new Date(new Date().getTime() + jwtExpirationMs))
                 .signWith(key())
@@ -43,7 +44,8 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String jwtToken){
         try{
-            Jwts.parser().verifyWith((SecretKey) key()).build().parseSignedClaims(jwtToken);
+            Jwts.parser().verifyWith((SecretKey) key())
+                    .build().parseSignedClaims(jwtToken);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -52,5 +54,16 @@ public class JwtUtils {
 
     private Key key(){
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
+
+    public String getUserIdFromToken(String jwt){
+        return Jwts.parser().verifyWith((SecretKey) key())
+                .build().parseSignedClaims(jwt)
+                .getPayload().getSubject();
+    }
+
+    public Claims getAllClaims(String jwt) {
+        return Jwts.parser().verifyWith((SecretKey) key()).build()
+                .parseSignedClaims(jwt).getPayload();
     }
 }
